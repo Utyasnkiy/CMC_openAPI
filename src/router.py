@@ -8,7 +8,6 @@ router = APIRouter(
 )
 
 
-
 @router.get('')
 async def get_currency():
     return await cmc_client.get_listings()

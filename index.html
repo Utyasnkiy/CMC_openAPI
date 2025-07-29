@@ -1,0 +1,60 @@
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Crypto Viewer</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    .crypto-card {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .crypto-card h2 { margin: 0 0 0.5rem 0; }
+    .tags { font-size: 0.9rem; color: #555; }
+    .quote { margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>Crypto Market Overview</h1>
+  <div id="crypto-container"></div>
+
+ <script>
+  const container = document.getElementById('crypto-container');
+
+  fetch('http://127.0.0.1:8000/currancy')
+    .then(response => response.json())
+    .then(data => {
+      data.forEach(coin => {
+        const div = document.createElement('div');
+        div.className = 'crypto-card';
+
+        const price = coin.quote?.USD?.price?.toFixed(2) || 'N/A';
+        const marketCap = coin.quote?.USD?.market_cap?.toLocaleString() || 'N/A';
+
+        div.innerHTML = `
+          <h2>${coin.name} (${coin.symbol})</h2>
+          <p><strong>Rank:</strong> ${coin.cmc_rank}</p>
+          <p><strong>Price (USD):</strong> $${price}</p>
+          <p><strong>Market Cap:</strong> $${marketCap}</p>
+          <p><strong>Tags:</strong> <span class="tags">${coin.tags.join(', ')}</span></p>
+          <p class="quote">Last updated: ${new Date(coin.quote.USD.last_updated).toLocaleString()}</p>
+          <button onclick="viewDetails(${coin.id})">Подробнее</button>
+        `;
+
+        container.appendChild(div);
+      });
+    })
+    .catch(error => {
+      container.innerHTML = `<p style="color: red;">Ошибка при загрузке данных: ${error.message}</p>`;
+    });
+
+  function viewDetails(id) {
+  window.location.href = `currancy_wallet.html?id=${id}`;
+}
+</script>
+
+
+</body>
+</html>

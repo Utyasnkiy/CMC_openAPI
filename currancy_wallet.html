@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cryptocurrency Details</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    .card { border: 1px solid #ccc; border-radius: 8px; padding: 1rem; }
+    .tags { margin-top: 1rem; }
+    .tag { display: inline-block; background: #eee; padding: 0.2rem 0.5rem; margin: 0.2rem; border-radius: 4px; font-size: 0.85rem; }
+    .category { font-style: italic; font-size: 0.75rem; color: #666; }
+  </style>
+</head>
+<body>
+  <h1 id="name">Loading...</h1>
+  <div class="card">
+    <p><strong>Symbol:</strong> <span id="symbol"></span></p>
+    <p><strong>Slug:</strong> <span id="slug"></span></p>
+    <p><strong>Market Pairs:</strong> <span id="pairs"></span></p>
+    <p><strong>Date Added:</strong> <span id="date_added"></span></p>
+    <p><strong>Rank:</strong> <span id="rank"></span></p>
+    <p><strong>Price (USD):</strong> $<span id="price"></span></p>
+    <p><strong>Market Cap:</strong> $<span id="market_cap"></span></p>
+    <p><strong>Circulating Supply:</strong> <span id="circ_supply"></span></p>
+    <p><strong>Total Supply:</strong> <span id="total_supply"></span></p>
+    <p><strong>Max Supply:</strong> <span id="max_supply"></span></p>
+    <p><strong>Last Updated:</strong> <span id="updated"></span></p>
+
+    <div class="tags">
+      <strong>Tags:</strong>
+      <div id="tags"></div>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    if (!id) {
+      document.getElementById('name').textContent = 'No currency ID provided';
+    } else {
+      fetch(`http://127.0.0.1:8000/currancy/${id}`)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('name').textContent = data.name;
+          document.getElementById('symbol').textContent = data.symbol;
+          document.getElementById('slug').textContent = data.slug;
+          document.getElementById('pairs').textContent = data.num_market_pairs;
+          document.getElementById('date_added').textContent = new Date(data.date_added).toLocaleDateString();
+          document.getElementById('rank').textContent = data.cmc_rank;
+          document.getElementById('price').textContent = data.quote?.USD?.price?.toFixed(2) || 'N/A';
+          document.getElementById('market_cap').textContent = data.quote?.USD?.market_cap?.toLocaleString() || 'N/A';
+          document.getElementById('circ_supply').textContent = data.circulating_supply?.toLocaleString();
+          document.getElementById('total_supply').textContent = data.total_supply?.toLocaleString();
+          document.getElementById('max_supply').textContent = data.max_supply?.toLocaleString();
+          document.getElementById('updated').textContent = new Date(data.quote?.USD?.last_updated).toLocaleString();
+
+          const tagsBlock = document.getElementById('tags');
+          data.tags?.forEach(tag => {
+            const span = document.createElement('span');
+            span.className = 'tag';
+            span.innerHTML = `${tag.name} <span class="category">(${tag.category})</span>`;
+            tagsBlock.appendChild(span);
+          });
+        })
+        .catch(err => {
+          document.getElementById('name').textContent = 'Error loading data';
+          console.error(err);
+        });
+    }
+  </script>
+</body>
+</html>
